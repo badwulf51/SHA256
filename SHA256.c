@@ -1,7 +1,14 @@
 #include <stdio.h>
+#include <stdint.h>
 
-int main (void)
+void sha256();
+
+int main (int argc, char *argv[])
 {
-    printf("hello NIGGERS")
+    
+return 0;
+}
 
+void sha256(){
+    
 }
