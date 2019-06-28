@@ -62,6 +62,16 @@ void sha256(){
         a = T1 + T2; 
 
     }
+    // step 4
+    H[0] = a + H[0];
+    H[1] = b + H[1];
+    H[2] = c + H[2];
+    H[3] = d + H[3];
+    H[4] = e + H[4];
+    H[5] = f + H[5];
+    H[6] = g + H[6];
+    H[7] = h + H[7];
+
 }
 
 uint32_t rotr(uint32_t n, uint32_t x){
