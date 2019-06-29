@@ -59,10 +59,12 @@ void sha256(){
         0x5be0cd19
     };
 
-    uint32_t M[16];  
+    uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0, 0};  
 
 
-    int t;
+    int i, t;
+
+    for (i= 0; i < 1; i++){
 
     for (t =0; t < 16; t++)
         W[t] = M[t];
@@ -96,7 +98,8 @@ void sha256(){
     H[5] = f + H[5];
     H[6] = g + H[6];
     H[7] = h + H[7];
-
+    }
+    printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 }
 
 uint32_t rotr(uint32_t n, uint32_t x){
