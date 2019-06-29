@@ -77,7 +77,7 @@ void sha256(){
     e = H[4]; f = H[5]; g = H[6]; h = H[7];
 
     for (t = 0; t < 64; t++){
-        T1 = h + SIG1(e) + ch(e, f, g) + K[t] + W[t];
+        T1 = h + SIG1(e) + Ch(e, f, g) + K[t] + W[t];
         T2 = sig0(a) + Maj(a, b, c);
         h = g; 
         g = f; 
