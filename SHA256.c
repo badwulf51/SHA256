@@ -9,6 +9,11 @@ uint32_t sig1(uint32_t x);
 uint32_t rotr(uint32_t n, uint32_t x);
 uint32_t shr(uint32_t n, uint32_t x);
 
+uint32_t SIG0 (uint32_t x);
+uint32_t SIG1 (uint32_t x);
+
+uint32_t Ch (uint32_t x, uint32_t y, uint32_t z);
+uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 int main (int argc, char *argv[])
 {
 sha256();
@@ -50,8 +55,8 @@ void sha256(){
     e = H[4]; f = H[5]; g = H[6]; h = H[7];
 
     for (t = 0; t < 64; t++){
-        T1 = h + SIG_1(e) + ch(e, f, g) + K[t] + W[t];
-        T2 = sig_0(a) + MAJ(a, b, c);
+        T1 = h + SIG1(e) + ch(e, f, g) + K[t] + W[t];
+        T2 = sig0(a) + Maj(a, b, c);
         h = g; 
         g = f; 
         f = e; 
@@ -88,4 +93,19 @@ uint32_t sig0(uint32_t x){
 }
 uint32_t sig1(uint32_t x){
     return (rotr(17, x) ^ rotr(19, x) ^ shr(10, x));
+}
+
+uint32_t SIG0 (uint32_t x){
+   return (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+
+}
+uint32_t SIG1 (uint32_t x){
+    return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
+}
+
+uint32_t Ch (uint32_t x, uint32_t y, uint32_t z){
+    return ((x & y) ^ ((!x) & z));
+}
+uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
+    return ((x & y) ^ (x & z) ^ (y & z));
 }
