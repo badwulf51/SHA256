@@ -22,6 +22,8 @@ FILE* f;
 
 f = fopen(argv[1], "r");
 
+int i; 
+
 while (S == READ) {
     nobytes = fread(M.e, 1, 64, f);
     printf("Read %2llu\n bytes", nobytes);
@@ -43,10 +45,20 @@ while (S == READ) {
             M.e[nobytes] = 0x00;
 
         }
+    }   else if (feof(f)) {
+            S = PAD1;
     }
- 
 
 }
+
+if (S == PAD0 || S == PAD1) {
+        for (i = 0; i < 56; i++) 
+            M.e[i] = 0x80;
+        M.s[7] = nobits;
+    }
+    if (S == PAD1) 
+        M.e[0] = 0x80;
+
 fclose(f);
 
 for (int i = 0; i < 64; i++)
