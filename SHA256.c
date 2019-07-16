@@ -1,7 +1,16 @@
 #include <stdio.h>
 #include <stdint.h>
 
-void sha256();
+union msgblock {
+    uint8_t e[64];
+    uint32_t t[16];
+    uint64_t s[8];
+
+};
+
+enum status {READ, PAD0, PAD1, FINISH};
+
+
 
 uint32_t sig0(uint32_t x);
 uint32_t sig1(uint32_t x);
@@ -14,14 +23,24 @@ uint32_t SIG1 (uint32_t x);
 
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
+
+void sha256(FILE *f);
+
+int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits);
 int main (int argc, char *argv[])
 {
-sha256();
+
+ FILE* f;
+ f = fopen(argv[1], "r");
+
+sha256(f);
 
 return 0;
 }
 
-void sha256(){
+void sha256(FILE *f){
+
+    
 
     uint32_t K[] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
@@ -64,7 +83,7 @@ void sha256(){
 
     int i, t;
 
-    for (i= 0; i < 1; i++){
+    while (nextmsgblock(f, M, S, nobits)) {
 
     for (t =0; t < 16; t++)
         W[t] = M[t];
@@ -131,4 +150,20 @@ uint32_t Ch (uint32_t x, uint32_t y, uint32_t z){
 }
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (x & z) ^ (y & z));
+}
+
+int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits) {
+    union msgblock M; 
+
+    uint16_t nobits = 0; 
+    uint64_t nobytes; 
+
+    enum status S = READ;
+
+    
+
+    int i; 
+
+
+
 }
