@@ -40,7 +40,12 @@ return 0;
 
 void sha256(FILE *f){
 
-    
+    union msgblock M; 
+
+    uint16_t nobits = 0; 
+    uint64_t nobytes; 
+
+    enum status S = READ;
 
     uint32_t K[] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
@@ -78,7 +83,7 @@ void sha256(FILE *f){
         0x5be0cd19
     };
 
-    uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0, 0};  
+     
 
 
     int i, t;
@@ -86,7 +91,7 @@ void sha256(FILE *f){
     while (nextmsgblock(f, M, S, nobits)) {
 
     for (t =0; t < 16; t++)
-        W[t] = M[t];
+        W[t] = M.t[t];
 
     for (t = 16; t < 64; t++)
         W[t] = sig1 (W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16]; 
@@ -153,17 +158,73 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
 }
 
 int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits) {
-    union msgblock M; 
+    
 
-    uint16_t nobits = 0; 
+    // Number of bytes from fread
     uint64_t nobytes; 
-
-    enum status S = READ;
 
     
 
+    
+    // for looping
     int i; 
 
+if (*S == FINISH)
+    return 0;
 
+    if (*S == PAD0 || *S == PAD1) {
+        for (i = 0; i < 56; i++) 
+            M->e[i] = 0x80;
+        M->s[7] = *nobits;
+        *S = FINISH; 
+    }
+    if (S == PAD1) 
+        M->e[0] = 0x80;
+
+    while (S == READ) {
+    nobytes = fread(M->e, 1, 64, f);
+    printf("Read %2llu\n bytes", nobytes);
+    nobits = nobits + (nobytes * 8);
+    if (nobytes < 56) {
+        printf("Found a block with less than 55 bytes\n");
+        M->e[nobytes] = 0x80;
+        while (nobytes < 56){
+            nobytes = nobytes + 1; 
+            M->e[nobytes] = 0x00;
+        }
+        M->s[7] = nobits;
+        S = FINISH; 
+    } else if (nobytes < 64) {
+        S = PAD0;
+        M->e[nobytes] = 0x80;
+        while (nobytes < 64) {
+            nobytes = nobytes +1;
+            M->e[nobytes] = 0x00;
+
+        }
+    }   else if (feof(f)) {
+            S = PAD1;
+    }
 
 }
+
+if (S == PAD0 || S == PAD1) {
+        for (i = 0; i < 56; i++) 
+            M->e[i] = 0x80;
+        M->s[7] = nobits;
+    }
+    if (S == PAD1) 
+        M->e[0] = 0x80;
+
+fclose(f);
+
+for (int i = 0; i < 64; i++)
+    printf("%x ", M->e[i]);
+    printf("\n"); 
+
+ return 0;
+  
+}
+
+
+
