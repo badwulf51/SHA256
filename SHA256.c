@@ -35,6 +35,8 @@ int main (int argc, char *argv[])
 
 sha256(f);
 
+fclose(f);
+
 return 0;
 }
 
@@ -88,7 +90,7 @@ void sha256(FILE *f){
 
     int i, t;
 
-    while (nextmsgblock(f, M, S, nobits)) {
+    while (nextmsgblock(f, &M, &S, &nobits)) {
 
     for (t =0; t < 16; t++)
         W[t] = M.t[t];
@@ -187,19 +189,18 @@ if (*S == FINISH)
 
     while (S == READ) {
     nobytes = fread(M->e, 1, 64, f);
-    printf("Read %2llu\n bytes", nobytes);
-    nobits = nobits + (nobytes * 8);
+    
+    *nobits = *nobits + (nobytes * 8);
     if (nobytes < 56) {
-        printf("Found a block with less than 55 bytes\n");
         M->e[nobytes] = 0x80;
         while (nobytes < 56){
             nobytes = nobytes + 1; 
             M->e[nobytes] = 0x00;
         }
         M->s[7] = nobits;
-        S = FINISH; 
+        *S = FINISH; 
     } else if (nobytes < 64) {
-        S = PAD0;
+        *S = PAD0;
         M->e[nobytes] = 0x80;
         while (nobytes < 64) {
             nobytes = nobytes +1;
@@ -207,15 +208,8 @@ if (*S == FINISH)
 
         }
     }   else if (feof(f)) {
-            S = PAD1;
+            *S = PAD1;
     }
-
-}
-
-
-
-fclose(f);
-
  
  return 1;
   
