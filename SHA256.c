@@ -24,27 +24,27 @@ uint32_t SIG1 (uint32_t x);
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 
-void sha256(FILE *f);
+void sha256(FILE *msgf);
 
-int nextmsgblock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits);
+int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
 int main (int argc, char *argv[])
 {
 
- FILE* f;
- f = fopen(argv[1], "r");
+ FILE* msgf;
+ msgf = fopen(argv[1], "r");
 
-sha256(f);
+sha256(msgf);
 
-fclose(f);
+fclose(msgf);
 
 return 0;
 }
 
-void sha256(FILE *f){
+void sha256(FILE *msgf){
 
     union msgblock M; 
 
-    uint16_t nobits = 0; 
+    uint64_t nobits = 0; 
     uint64_t nobytes; 
 
     enum status S = READ;
@@ -90,7 +90,7 @@ void sha256(FILE *f){
 
     int i, t;
 
-    while (nextmsgblock(f, &M, &S, &nobits)) {
+    while (nextmsgblock(msgf, &M, &S, &nobits)) {
 
     for (t =0; t < 16; t++)
         W[t] = M.t[t];
@@ -159,7 +159,7 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (x & z) ^ (y & z));
 }
 
-int nextmsgblock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits) {
+int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits) {
     
 
     // Number of bytes from fread
@@ -180,7 +180,7 @@ if (*S == FINISH)
         M->s[7] = *nobits;
         *S = FINISH; 
 
-        if (S == PAD1) 
+        if (*S == PAD1) 
         M->e[0] = 0x80;
 
         return 1; 
@@ -188,7 +188,7 @@ if (*S == FINISH)
     
 
     while (S == READ) {
-    nobytes = fread(M->e, 1, 64, f);
+    nobytes = fread(M->e, 1, 64, msgf);
     
     *nobits = *nobits + (nobytes * 8);
     if (nobytes < 56) {
@@ -197,7 +197,7 @@ if (*S == FINISH)
             nobytes = nobytes + 1; 
             M->e[nobytes] = 0x00;
         }
-        M->s[7] = nobits;
+        M->s[7] = *nobits;
         *S = FINISH; 
     } else if (nobytes < 64) {
         *S = PAD0;
@@ -207,12 +207,13 @@ if (*S == FINISH)
             M->e[nobytes] = 0x00;
 
         }
-    }   else if (feof(f)) {
+    }   else if (feof(msgf)) {
             *S = PAD1;
     }
  
  return 1;
   
+}
 }
 
 
