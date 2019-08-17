@@ -159,7 +159,7 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (x & z) ^ (y & z));
 }
 
-int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits) {
+int nextmsgblock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits) {
     
 
     // Number of bytes from fread
