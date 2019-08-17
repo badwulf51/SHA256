@@ -26,7 +26,7 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 
 void sha256(FILE *f);
 
-int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits);
+int nextmsgblock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits);
 int main (int argc, char *argv[])
 {
 
