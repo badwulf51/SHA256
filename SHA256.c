@@ -26,6 +26,13 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 
 #define SWAP_UINT32(x)  (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 
+#define SWAP_UINT64(x)                                                      \
+	((((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | \
+	 (((x) >> 24) & 0x0000000000FF0000) | (((x) >> 8) & 0x00000000FF000000) |  \
+	 (((x) << 8) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) |  \
+	 (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000))
+
+
 void sha256(FILE *msgf);
 
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
@@ -192,9 +199,10 @@ if (*S == FINISH)
     return 0;
 
     if (*S == PAD0 || *S == PAD1) {
-        for (i = 0; i < 56; i++) 
+        for (i = 0; i < 56; i++) {
             M->e[i] = 0x80;
-        M->s[7] = *nobits;
+        }
+        M->s[7] = SWAP_UINT64 (*nobits);
         *S = FINISH; 
 
         if (*S == PAD1) 
@@ -214,7 +222,7 @@ if (*S == FINISH)
             nobytes = nobytes + 1; 
             M->e[nobytes] = 0x00;
         }
-        M->s[7] = *nobits;
+        M->s[7] = SWAP_UINT64(*nobits);
         *S = FINISH; 
     } else if (nobytes < 64) {
         *S = PAD0;
