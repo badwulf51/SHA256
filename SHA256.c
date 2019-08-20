@@ -24,6 +24,8 @@ uint32_t SIG1 (uint32_t x);
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 
+uint32_t SWAP_UINT32(uint32_t x);
+
 void sha256(FILE *msgf);
 
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
@@ -93,7 +95,7 @@ void sha256(FILE *msgf){
     while (nextmsgblock(msgf, &M, &S, &nobits)) {
 
     for (t =0; t < 16; t++)
-        W[t] = M.t[t];
+        W[t] = SWAP_UINT32(M.t[t]);
 
     for (t = 16; t < 64; t++)
         W[t] = sig1 (W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16]; 
@@ -158,6 +160,25 @@ uint32_t Ch (uint32_t x, uint32_t y, uint32_t z){
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (x & z) ^ (y & z));
 }
+
+// =================================================
+
+uint32_t SWAP_UINT32(uint32_t x){
+
+    return (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24));
+
+}
+
+
+
+
+
+
+
+
+
+
+// =================================================
 
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits) {
     
