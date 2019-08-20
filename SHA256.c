@@ -24,7 +24,7 @@ uint32_t SIG1 (uint32_t x);
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z);
 
-uint32_t SWAP_UINT32(uint32_t x);
+#define SWAP_UINT32(x)  (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 
 void sha256(FILE *msgf);
 
@@ -163,11 +163,7 @@ uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
 
 // =================================================
 
-uint32_t SWAP_UINT32(uint32_t x){
 
-    return (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24));
-
-}
 
 
 
