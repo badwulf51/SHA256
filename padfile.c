@@ -42,7 +42,7 @@ while (S == READ) {
         M.e[nobytes] = 0x80;
         while (nobytes < 64) {
             nobytes = nobytes +1;
-            M.e[nobytes] = 0x00;
+            M.e[nobytes] = 0x80;
 
         }
     }   else if (feof(f)) {

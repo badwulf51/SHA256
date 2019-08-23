@@ -97,10 +97,10 @@ void sha256(FILE *msgf){
      
 
 
-    int i, t;
+    int i = 0, t;
 
     while (nextmsgblock(msgf, &M, &S, &nobits)) {
-
+        i ++;
     for (t =0; t < 16; t++)
         W[t] = SWAP_UINT32(M.t[t]);
 
@@ -195,14 +195,16 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
     // for looping
     int i; 
 
-if (*S == FINISH)
+if (*S == FINISH){
     return 0;
-
+}
     if (*S == PAD0 || *S == PAD1) {
         for (i = 0; i < 56; i++) {
             M->e[i] = 0x80;
         }
+
         M->s[7] = SWAP_UINT64 (*nobits);
+        
         *S = FINISH; 
 
         if (*S == PAD1) 
