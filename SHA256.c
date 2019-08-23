@@ -15,7 +15,7 @@ enum status {READ, PAD0, PAD1, FINISH};
 uint32_t sig0(uint32_t x);
 uint32_t sig1(uint32_t x);
 
-uint32_t rotr(uint32_t n, uint32_t x);
+uint32_t rotr(uint32_t a, uint32_t b);
 uint32_t shr(uint32_t n, uint32_t x);
 
 uint32_t SIG0 (uint32_t x);
@@ -137,35 +137,36 @@ void sha256(FILE *msgf){
     printf("%08x%08x%08x%08x%08x%08x%08x%08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 }
 
-uint32_t rotr(uint32_t n, uint32_t x){
-    return (x >> n) | (x << (32 - n));
+uint32_t rotr(uint32_t a, uint32_t b){
+    return ((a) >> (b) | ((a) << (32 - (b))));
 }
 
-uint32_t shr(uint32_t n, uint32_t x){
-    return (x >> n);
-}
+//uint32_t shr(uint32_t n, uint32_t x){
+   // return (x >> n);
+//}
 
 
 uint32_t sig0(uint32_t x){
-    return (rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
+    return (rotr(x, 7) ^ rotr(x, 18) ^ ((x) >> 3));
 }
 uint32_t sig1(uint32_t x){
-    return (rotr(17, x) ^ rotr(19, x) ^ shr(10, x));
+    return (rotr(x,17) ^ rotr(x,19) ^ ((x) >> 10));
 }
 
 uint32_t SIG0 (uint32_t x){
-   return (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+   return (rotr(x,2) ^ rotr(x,13) ^ rotr(x,22));
 
 }
 uint32_t SIG1 (uint32_t x){
-    return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
+    return (rotr(x,6) ^ rotr(x,11) ^ rotr(x,25));
 }
 
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z){
-    return ((x & y) ^ ((!x) & z));
+    return (((x) & (y)) ^ (~(x) & (z)));
 }
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
-    return ((x & y) ^ (x & z) ^ (y & z));
+    return (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)));
+
 }
 
 // =================================================
