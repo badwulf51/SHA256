@@ -148,18 +148,20 @@ void sha256(FILE *msgf){
     // prints out the values
     printf("%08x%08x%08x%08x%08x%08x%08x%08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 }
+// bit operations
 
+// rotates the bit x by a places, places overhanging bits back to start
 uint32_t rotr(uint32_t a, uint32_t b){
     return (a >> b) | (a << (32 - (b)));
 }
-
+// shifts the bit by x and b places
 uint32_t shr(uint32_t x, uint32_t b)
 {
 	return (x >> b);
 }
 
 
-
+// rotates it right with 7 xor
 uint32_t sig0(uint32_t x){
     return (rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3));
 }
@@ -174,10 +176,11 @@ uint32_t SIG0 (uint32_t x){
 uint32_t SIG1 (uint32_t x){
     return (rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25));
 }
-
+// x input chooses if the output is from y or z
 uint32_t Ch (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (~(x)&z));
 }
+// meaning majority, for each bit index the result is according to the majority of 3 input bits 
 uint32_t Maj (uint32_t x, uint32_t y, uint32_t z){
     return ((x & y) ^ (x & z) ^ (y & z));
 
@@ -194,17 +197,18 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
     
     // for looping
     int i; 
-
+// checks to see if all message blocks have finished
 if (*S == FINISH){
     return 0;
-}
+}   // if statement used for selecting which padding to use
     if (*S == PAD0 || *S == PAD1) {
+        // sets first 56 bytes to all zero bits
         for (i = 0; i < 56; i++) {
             M->e[i] = 0x80;
         }
-
+        // this was used to try and get big endian working, should set the last 64 bits to number of bits in the file
         M->s[7] = SWAP_UINT64 (*nobits);
-        
+        // sets state to finish
         *S = FINISH; 
 
         if (*S == PAD1){
@@ -212,11 +216,11 @@ if (*S == FINISH){
         }
         return 1; 
     }
-    
+    // reads 64 bytes at a time from the file 
     nobytes = fread(M->e, 1, 64, msgf);
-    
+    // keeps track of bits read
     *nobits = *nobits + (nobytes * 8);
-
+    // if 56 bytes have been read, put all padding in this message block
     if (nobytes < 56) {
         M->e[nobytes] = 0x80;
         while (nobytes < 56){
